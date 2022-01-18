@@ -1,7 +1,19 @@
-var WebSocketServer = require('ws').Server;
+const express = require('express');
+const { route } = require('express/lib/application');
+const ws = require('ws');
 
-const wssPort = process.env.PORT || 8080;
-const wss = new WebSocketServer({port: wssPort});
+const app = express();
+const router = express.Router();
+
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Methods', 'GET');
+  next();
+});
+
+router.get('/', (req, res) => {
+  res.status(200).send('Ok');
+});
+
 var clients = new Array;
 
 
@@ -39,4 +51,22 @@ function broadcast(data) {
 }
 
 // listen for clients and handle them:
-wss.on('connection', handleConnection);
+
+// Set up a headless websocket server that prints any
+// events that come in.
+const wsServer = new ws.Server({
+	noServer: true,
+	path: "/ws"
+});
+wsServer.on('connection', handleConnection);
+
+// `server` is a vanilla Node.js HTTP server, so use
+// the same ws upgrade process described here:
+// https://www.npmjs.com/package/ws#multiple-servers-sharing-a-single-https-server
+const server = app.listen(8080);
+server.on('upgrade', (request, socket, head) => {
+  wsServer.handleUpgrade(request, socket, head, socket => {
+    wsServer.emit('connection', socket, request);
+  });
+});
+app.use("", router)
