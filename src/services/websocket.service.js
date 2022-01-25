@@ -1,6 +1,7 @@
 const ws = require('ws');
 const url = require('url');
 const jwt = require('jsonwebtoken');
+const { decode } = require('punycode');
 
 const jwtSecret = process.env.JWT_SECRET;
 
@@ -10,19 +11,22 @@ const wss = new ws.Server({
 	clientTracking: true
 })
 
+
 wss.on('connection', function connection(ws, req) {
 	var token = url.parse(req.url, true).query.token;
 	jwt.verify(token, jwtSecret, (err, decoded) => {
+		console.log("token is",decoded)
         if (err) {
             console.log(err);
             console.log("Invalid JWT")
 			ws.terminate()
         } else {
-			if(!decoded.user_id){
+			if(!decoded.email){
 				console.error("JWT must contain user_id")
 				ws.terminate()
 			} else{
-				ws.user_id = decoded.user_id;
+				console.log(decoded);
+				ws.email = decoded.email;
 			}
 			
         }

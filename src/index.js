@@ -1,16 +1,16 @@
 require('dotenv').config()
 const express = require('express');
-const { route } = require('express/lib/application');
 const bodyParser = require('body-parser');
 const wss = require( './services/websocket.service.js' );
-const { Client, Pool } = require('pg');
+const dbclient = require('./services/database.service.js');
+
+const fetch = require('node-fetch');
+const api_url = process.env.API_URL;
+const api_key = process.env.API_KEY;
 
 
 // Express app
 const app = express();
-app.use(bodyParser.json({
-    type: "*/*"
-}));
 
 server = app.listen(80);
 server.on('upgrade', (request, socket, head) => {
@@ -23,38 +23,31 @@ server.on('upgrade', (request, socket, head) => {
 // Express routes
 const router = express.Router();
 
-router.use((req, res, next) => {
-  res.header('Access-Control-Allow-Methods', 'GET');
-  next();
-});
-
 router.get('/', (req, res) => {
   res.status(200).send('Ok');
 });
 
-router.post('/messages', (req, res) => {
-	console.log("POST to messages",req.body);
-	res.status(200).send('Ok');
-});
-
 app.use("", router)
 
-// db listener
-const client = new Client({
-	host: process.env.DATABASE_HOST,
-	user: process.env.DATABASE_USER,
-	password: process.env.DATABASE_PASSWORD,
-	database: process.env.DB_NAME,
-});
 
-client.connect().then(() => {
-	console.log('setup listener');
-	client.query('LISTEN guests');
-});
+dbclient.on('notification', async function (msg) {
+	if(msg.payload){
+		let guest = JSON.parse(msg.payload);
+		
+		// TODO filter by domain/subdomain
+		const response = await fetch( `${api_url}agent?key=${api_key}` )
+		.then( res => res.json() )
+		.then( data => data )
+		.catch(err => {
+			console.error('Failed to get agents',err);
+		 });
 
-client.on('notification', function (msg) {
-	console.log(msg);
-	wss.clients.forEach((wsClient) => {
-		wsClient.send(JSON.stringify(msg));
-	});
+		let agent_emails = response.map(agent => agent.email);
+
+		wss.clients.forEach((wsClient) => {
+			if(agent_emails.indexOf(wsClient.email) > -1){
+				wsClient.send(JSON.stringify(guest));
+			}
+		});
+	}
 });
