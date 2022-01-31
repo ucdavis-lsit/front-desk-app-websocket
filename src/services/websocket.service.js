@@ -15,42 +15,31 @@ const wss = new ws.Server({
 })
 
 
-wss.on('connection', function connection(ws, req) {
-	var token = url.parse(req.url, true).query.token;
-	var subdomain = url.parse(req.url, true).query.subdomain;
+wss.on('connection', function connection( ws, req ) {
+	const token = url.parse( req.url, true ).query.token;
 
-	if(!token || ! subdomain){
+	if( !token ){
 		ws.terminate()
 		console.error("Missing required params");
 	}
 
-	jwt.verify(token, jwtSecret, async (err, decoded) => {
+	jwt.verify( token, jwtSecret, async ( err, decoded ) => {
 		console.log("token is",decoded)
-        if (err) {
-            console.log(err);
-            console.log("Invalid JWT")
-			ws.terminate()
-        } else {
-			if(!decoded.email){
+		if ( err ) {
+			console.log( err );
+			console.log( "Invalid JWT" )
+				ws.terminate()
+		} else {
+			if( !decoded.email ){
 				console.error("JWT must contain user_id")
 				ws.terminate()
-			} else{
-				console.log(decoded);
-				const subdomain_resp = await fetch( encodeURI(`${api_url}subdomain?key=${api_key}&name=${subdomain}`) )
-				.then( res => res.json() )
-				.then( data => data )
-				.catch(err => {
-					console.error('Failed to get subdomain id',err);
-					});
-				console.log("subdomain list", subdomain_resp)
-
+			} else {
 				ws.email = decoded.email;
-				ws.subdomain = subdomain_resp[0].id;
+				ws.subdomain = decoded.subdomain;
 				console.log("wsclient connected info",ws.subdomain,ws.email)
 			}
-			
-        }
-    });
+		}
+	});
 
 	ws.on('close', function close() {
 		console.log('websocket closed');
