@@ -33,9 +33,9 @@ app.use("", router)
 dbclient.on('notification', async function (msg) {
 	if(msg.payload){
 		let guest = JSON.parse(msg.payload);
-		
-		// TODO filter by domain/subdomain
-		const response = await fetch( `${api_url}agent?key=${api_key}` )
+		console.log("guest", guest)
+
+		const response = await fetch( `${api_url}agent?key=${api_key}&subdomain=${guest.subdomain}` )
 		.then( res => res.json() )
 		.then( data => data )
 		.catch(err => {
@@ -43,10 +43,24 @@ dbclient.on('notification', async function (msg) {
 		 });
 
 		let agent_emails = response.map(agent => agent.email);
+		console.log("emails",agent_emails);
+
+		const guest_resp = await fetch( `${api_url}guest?key=${api_key}&subdomain=${guest.subdomain}` )
+		.then( res => res.json() )
+		.then( data => data )
+		.catch(err => {
+			console.error('Failed to get guest list',err);
+		 });
+		console.log("guest list", guest_resp)
 
 		wss.clients.forEach((wsClient) => {
-			if(agent_emails.indexOf(wsClient.email) > -1){
-				wsClient.send(JSON.stringify(guest));
+			console.log("wsclient info",wsClient.subdomain,wsClient.email)
+			if(guest.subdomain == wsClient.subdomain && agent_emails.indexOf(wsClient.email) > -1){
+				const guest_event = {
+					"event": "update_guest_list",
+					"guests": guest_resp
+				}
+				wsClient.send(JSON.stringify(guest_event));
 			}
 		});
 	}
