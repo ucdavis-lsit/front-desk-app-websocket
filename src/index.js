@@ -31,8 +31,9 @@ app.use("", router)
 
 
 dbclient.on('notification', async function (msg) {
+	console.log("New notification",msg)
 	if(msg.payload){
-		let guest = JSON.parse(msg.payload);
+		let guest = JSON.parse(msg.payload).data;
 		console.log("guest", guest)
 
 		const response = await fetch( `${api_url}agent?key=${api_key}&subdomain=${guest.subdomain}` )
