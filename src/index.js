@@ -32,34 +32,13 @@ app.use("", router)
 
 dbclient.on('notification', async function (msg) {
 	console.log("New notification",msg)
-	if(msg.payload){
-		let guest = JSON.parse(msg.payload).data;
-		console.log("guest", guest)
-
-		const response = await fetch( `${api_url}agent?key=${api_key}&subdomain=${guest.subdomain}` )
-		.then( res => res.json() )
-		.then( data => data )
-		.catch(err => {
-			console.error('Failed to get agents',err);
-		 });
-
-		let agent_emails = response.map(agent => agent.email);
-		console.log("emails",agent_emails);
-
-		const guest_resp = await fetch( `${api_url}guest?key=${api_key}&subdomain=${guest.subdomain}` )
-		.then( res => res.json() )
-		.then( data => data )
-		.catch(err => {
-			console.error('Failed to get guest list',err);
-		 });
-		console.log("guest list", guest_resp)
-
-		wss.clients.forEach((wsClient) => {
+	if( msg.channel === 'guests' ){
+		const subdomain = JSON.parse(msg.payload).data.subdomain;
+		wss.clients.forEach(( wsClient ) => {
 			console.log("wsclient info",wsClient.subdomain,wsClient.email)
-			if(guest.subdomain == wsClient.subdomain && agent_emails.indexOf(wsClient.email) > -1){
+			if( subdomain == wsClient.subdomain && wsClient.isAgent){
 				const guest_event = {
-					"event": "update_guest_list",
-					"guests": guest_resp
+					"event": "refresh_guest_list",
 				}
 				wsClient.send(JSON.stringify(guest_event));
 			}
