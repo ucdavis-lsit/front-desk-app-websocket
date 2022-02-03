@@ -43,16 +43,16 @@ dbclient.on('notification', async function (msg) {
 				wsClient.send(JSON.stringify(guest_event));
 			}
 		});
-	} else if ( msg.channel === 'notifications' ){
+	} else if ( msg.channel === 'announcements' ){
 		const subdomain = JSON.parse(msg.payload).data.subdomain;
 		wss.clients.forEach(( wsClient ) => {
 			console.log("wsclient info",wsClient.subdomain,wsClient.email)
 			if( subdomain == wsClient.subdomain){
-				const notification_event = {
-					"event": "new_notification",
+				const announcement_event = {
+					"event": "refresh_announcements",
 				}
-				console.log("sending",JSON.stringify(notification_event))
-				wsClient.send(JSON.stringify(notification_event));
+				console.log("sending",JSON.stringify(announcement_event))
+				wsClient.send(JSON.stringify(announcement_event));
 			}
 		});
 	}

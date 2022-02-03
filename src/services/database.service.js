@@ -10,7 +10,7 @@ const dbclient = new Client({
 dbclient.connect().then(() => {
 	console.log('setup listener');
 	dbclient.query( 'LISTEN guests' );
-	dbclient.query( 'LISTEN notifications' );
+	dbclient.query( 'LISTEN announcements' );
 });
 
 module.exports = dbclient;
