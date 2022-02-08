@@ -42,9 +42,9 @@ wss.on('connection', function connection( ws, req ) {
 					console.error('Failed to get agent info',err);
 				 });
 				ws.email = decoded.email;
-				ws.subdomain = decoded.subdomain;
+				ws.domain = decoded.domain;
 				ws.isAgent = response.length > 0;
-				console.log("wsclient connected info",ws.subdomain,ws.email,ws.isAgent)
+				console.log("wsclient connected info",ws.domain,ws.email,ws.isAgent)
 			}
 		}
 	});

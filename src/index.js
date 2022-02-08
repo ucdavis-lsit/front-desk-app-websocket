@@ -33,10 +33,10 @@ app.use("", router)
 dbclient.on('notification', async function (msg) {
 	console.log("New notification",msg)
 	if( msg.channel === 'guests' ){
-		const subdomain = JSON.parse(msg.payload).data.subdomain;
+		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.subdomain,wsClient.email)
-			if( subdomain == wsClient.subdomain && wsClient.isAgent){
+			console.log("wsclient info",wsClient.domain,wsClient.email)
+			if( domain == wsClient.domain && wsClient.isAgent){
 				const guest_event = {
 					"event": "refresh_guest_list",
 				}
@@ -44,10 +44,10 @@ dbclient.on('notification', async function (msg) {
 			}
 		});
 	} else if ( msg.channel === 'announcements' ){
-		const subdomain = JSON.parse(msg.payload).data.subdomain;
+		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.subdomain,wsClient.email)
-			if( subdomain == wsClient.subdomain){
+			console.log("wsclient info",wsClient.domain,wsClient.email)
+			if( domain == wsClient.domain){
 				const announcement_event = {
 					"event": "refresh_announcements",
 				}
