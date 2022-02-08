@@ -15,5 +15,5 @@ RUN npm install
 # Bundle app source
 COPY . .
 
-EXPOSE 8080
-CMD [ "node", "ws.js" ]
+EXPOSE 80
+CMD [ "node", "src/index.js" ]

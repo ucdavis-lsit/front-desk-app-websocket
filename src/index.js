@@ -23,7 +23,7 @@ server.on('upgrade', (request, socket, head) => {
 // Express routes
 const router = express.Router();
 
-router.get('/', (req, res) => {
+router.get('/health', (req, res) => {
   res.status(200).send('Ok');
 });
 
