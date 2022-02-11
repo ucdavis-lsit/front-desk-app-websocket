@@ -36,7 +36,7 @@ dbclient.on('notification', async function (msg) {
 		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
 			console.log("wsclient info",wsClient.domain,wsClient.email)
-			if( domain == wsClient.domain && wsClient.isAgent){
+			if( domain == wsClient.domain){
 				const guest_event = {
 					"event": "refresh_guest_list",
 				}

@@ -35,16 +35,9 @@ wss.on('connection', function connection( ws, req ) {
 				console.error("JWT must contain user_id")
 				ws.terminate()
 			} else {
-				const response = await fetch( `${api_url}agent/${decoded.email}?key=${api_key}` )
-				.then( res => res.json() )
-				.then( data => data )
-				.catch(err => {
-					console.error('Failed to get agent info',err);
-				 });
 				ws.email = decoded.email;
 				ws.domain = decoded.domain;
-				ws.isAgent = response.length > 0;
-				console.log("wsclient connected info",ws.domain,ws.email,ws.isAgent)
+				console.log("wsclient connected info",ws.domain,ws.email)
 			}
 		}
 	});
