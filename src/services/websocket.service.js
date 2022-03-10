@@ -4,10 +4,9 @@ const jwt = require('jsonwebtoken');
 const { decode } = require('punycode');
 const fetch = require('node-fetch');
 const res = require('express/lib/response');
+const apiService = require('./api.service')
 
 const jwtSecret = process.env.JWT_SECRET;
-const api_url = process.env.API_URL;
-const api_key = process.env.API_KEY;
 
 const wss = new ws.Server({
 	noServer: true,
@@ -37,14 +36,40 @@ wss.on('connection', function connection( ws, req ) {
 			} else {
 				ws.email = decoded.email;
 				ws.domain = decoded.domain;
-				console.log("wsclient connected info",ws.domain,ws.email)
+				ws.is_agent = decoded.is_agent;
+				if( ws.is_agent ){
+					let agent = await apiService.getAgent(ws.email, ws.domain)
+					console.log(agent);
+					ws.id = agent.id;
+					console.log("wsclient connected info",ws.domain,ws.email,ws.id)
+					await apiService.updateAgent( ws.id, { status: 'connected' } );
+				} else {
+					let guest = await apiService.getAgent(ws.email, ws.domain)
+					console.log(guest);
+					ws.id = guest.id;
+					console.log("wsclient is guest and connected info",ws.domain,ws.email,ws.id)
+				}
+
 			}
 		}
 	});
 
-	ws.on('close', function close() {
+	ws.on('close', async function close() {
 		console.log('websocket closed');
-		//TODO more helpful logging
+		let isConnected = false;
+		for (const client of wss.clients) {
+			if (client.is_agent === ws.is_agent && client.email === ws.email && client.domain === ws.domain) {
+				isConnected = true;
+			  break;
+			}
+		}
+		if(!isConnected){
+			if( ws.is_agent ){
+				await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+			} else {
+				await apiService.updateGuest( ws.id, { status: 'disconnected' } );
+			}
+		}
 	});
 	
 	ws.on('message', function message(data) {
