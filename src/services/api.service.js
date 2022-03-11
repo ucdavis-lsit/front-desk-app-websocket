@@ -9,7 +9,11 @@ const getAgent = async ( email, domain ) => {
     .catch(err => {
         console.error('Failed to get agent',err);
      });
-    return response[0];
+    if( response.length < 1){
+        return null;
+    } else {
+        return response[0];
+    }
 }
 
 const updateAgent = async ( id, body ) => {
@@ -34,7 +38,11 @@ const getGuest = async ( email, domain ) => {
     .catch(err => {
         console.error('Failed to get guest',err);
      });
-    return response[0];
+    if( response.length < 1){
+        return null;
+    } else {
+        return response[0];
+    }
 }
 
 const updateGuest = async ( id, body ) => {

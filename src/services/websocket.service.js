@@ -28,7 +28,7 @@ wss.on('connection', function connection( ws, req ) {
 		if ( err ) {
 			console.log( err );
 			console.log( "Invalid JWT" )
-				ws.terminate()
+			ws.terminate()
 		} else {
 			if( !decoded.email ){
 				console.error("JWT must contain user_id")
@@ -39,15 +39,24 @@ wss.on('connection', function connection( ws, req ) {
 				ws.is_agent = decoded.is_agent;
 				if( ws.is_agent ){
 					let agent = await apiService.getAgent(ws.email, ws.domain)
-					console.log(agent);
-					ws.id = agent.id;
-					console.log("wsclient connected info",ws.domain,ws.email,ws.id)
-					await apiService.updateAgent( ws.id, { status: 'connected' } );
+					if( agent ){
+						console.log(agent);
+						ws.id = agent.id;
+						console.log("wsclient connected info",ws.domain,ws.email,ws.id)
+						await apiService.updateAgent( ws.id, { status: 'connected' } );
+					} else {
+						ws.terminate()
+					}
 				} else {
-					let guest = await apiService.getAgent(ws.email, ws.domain)
-					console.log(guest);
-					ws.id = guest.id;
-					console.log("wsclient is guest and connected info",ws.domain,ws.email,ws.id)
+					let guest = await apiService.getGuest(ws.email, ws.domain)
+					if( guest ){
+						console.log(guest);
+						ws.id = guest.id;
+						console.log("wsclient is guest and connected info",ws.domain,ws.email,ws.id)
+					} else {
+						ws.terminate()
+					}
+
 				}
 
 			}
