@@ -4,10 +4,9 @@ const jwt = require('jsonwebtoken');
 const { decode } = require('punycode');
 const fetch = require('node-fetch');
 const res = require('express/lib/response');
+const apiService = require('./api.service')
 
 const jwtSecret = process.env.JWT_SECRET;
-const api_url = process.env.API_URL;
-const api_key = process.env.API_KEY;
 
 const wss = new ws.Server({
 	noServer: true,
@@ -25,35 +24,63 @@ wss.on('connection', function connection( ws, req ) {
 	}
 
 	jwt.verify( token, jwtSecret, async ( err, decoded ) => {
-		console.log("token is",decoded)
 		if ( err ) {
-			console.log( err );
-			console.log( "Invalid JWT" )
-				ws.terminate()
+			console.error( "Invalid JWT" );
+			ws.terminate()
 		} else {
 			if( !decoded.email ){
-				console.error("JWT must contain user_id")
+				console.error( "JWT must contain user_id" )
 				ws.terminate()
 			} else {
 				ws.email = decoded.email;
 				ws.domain = decoded.domain;
-				console.log("wsclient connected info",ws.domain,ws.email)
+				ws.is_agent = decoded.is_agent;
+				if( ws.is_agent ){
+					let agent = await apiService.getAgent( ws.email, ws.domain )
+					if( agent ){
+						ws.id = agent.id;
+						await apiService.updateAgent( ws.id, { status: 'connected' } );
+					} else {
+						ws.terminate()
+					}
+				} else {
+					let guest = await apiService.getGuest( ws.email, ws.domain )
+					if( guest ){
+						ws.id = guest.id;
+						await apiService.updateGuest( ws.id, { status: 'connected' } );
+					} else {
+						ws.terminate()
+					}
+
+				}
+
 			}
 		}
 	});
 
-	ws.on('close', function close() {
-		console.log('websocket closed');
-		//TODO more helpful logging
+	ws.on('close', async function close() {
+		let isConnected = false;
+		for (const client of wss.clients) {
+			if (client.is_agent === ws.is_agent && client.email === ws.email && client.domain === ws.domain) {
+				isConnected = true;
+			  break;
+			}
+		}
+		if(!isConnected){
+			if( ws.is_agent ){
+				await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+			} else {
+				await apiService.updateGuest( ws.id, { status: 'disconnected' } );
+			}
+		}
 	});
 	
 	ws.on('message', function message(data) {
-		console.log('WSS Recieved', data);
 		//TODO remove if clients cant talk back
 	});
 	
 	ws.on('pong', function pong(){
-		console.log("pong")
+		console.log( "pong" )
 		this.isAlive = true;
 	});
 
@@ -70,7 +97,7 @@ const interval = setInterval(function ping() {
   
 	  ws.isAlive = false;
 	  ws.ping();
-	  console.log("ping")
+	  console.log( "ping" )
 	});
   }, 30000);
 

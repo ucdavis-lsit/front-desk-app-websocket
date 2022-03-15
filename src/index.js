@@ -31,28 +31,26 @@ app.use("", router)
 
 
 dbclient.on('notification', async function (msg) {
-	console.log("New notification",msg)
 	if( msg.channel === 'guests' ){
-		const domain = JSON.parse(msg.payload).data.domain;
+		const payload = JSON.parse( msg.payload );
+		const guest = payload.data
+
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.domain,wsClient.email)
-			if( domain == wsClient.domain){
+			if( guest.domain == wsClient.domain ){
 				const guest_event = {
 					"event": "refresh_guest_list",
 				}
-				wsClient.send(JSON.stringify(guest_event));
+				wsClient.send( JSON.stringify(guest_event) );
 			}
 		});
 	} else if ( msg.channel === 'announcements' ){
 		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.domain,wsClient.email)
-			if( domain == wsClient.domain){
+			if( domain == wsClient.domain ){
 				const announcement_event = {
 					"event": "refresh_announcements",
 				}
-				console.log("sending",JSON.stringify(announcement_event))
-				wsClient.send(JSON.stringify(announcement_event));
+				wsClient.send( JSON.stringify(announcement_event) );
 			}
 		});
 	}
