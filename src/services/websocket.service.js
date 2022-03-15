@@ -53,6 +53,7 @@ wss.on('connection', function connection( ws, req ) {
 						console.log(guest);
 						ws.id = guest.id;
 						console.log("wsclient is guest and connected info",ws.domain,ws.email,ws.id)
+						await apiService.updateGuest( ws.id, { status: 'connected' } );
 					} else {
 						ws.terminate()
 					}
