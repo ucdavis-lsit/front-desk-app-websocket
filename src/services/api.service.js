@@ -26,7 +26,7 @@ const updateAgent = async ( id, body ) => {
     } )
     .then( res => res.json() )
     .then( data => data )
-    .catch(err => {
+    .catch( err => {
         console.error('Failed to update agent',err);
     });
 }
@@ -55,7 +55,7 @@ const updateGuest = async ( id, body ) => {
     } )
     .then( res => res.json() )
     .then( data => data )
-    .catch(err => {
+    .catch( err => {
         console.error('Failed to update guest',err);
     });
 }

@@ -31,42 +31,26 @@ app.use("", router)
 
 
 dbclient.on('notification', async function (msg) {
-	console.log("New notification",msg)
 	if( msg.channel === 'guests' ){
-		const payload = JSON.parse(msg.payload);
+		const payload = JSON.parse( msg.payload );
 		const guest = payload.data
-		console.log(guest)
 
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.domain,wsClient.email,wsClient.is_agent)
-			if( guest.domain == wsClient.domain){
+			if( guest.domain == wsClient.domain ){
 				const guest_event = {
 					"event": "refresh_guest_list",
 				}
-				wsClient.send(JSON.stringify(guest_event));
-			}
-			console.log("Conditions")
-			console.log(guest.email,wsClient.email)
-			console.log(!wsClient.is_agent,guest.email === wsClient.email,payload.type === 'update',guest.status ===  'queued',guest.match_data === null)
-			console.log("Conditions end")
-			if( !wsClient.is_agent && guest.email === wsClient.email && payload.type === 'update' && guest.status === 'queued' && guest.match_data === null){
-				console.log("sending requeued event")
-				const guest_requeued_event = {
-					'event': 'guest_requeued'
-				}
-				//wsClient.send(JSON.stringify(guest_requeued_event));
+				wsClient.send( JSON.stringify(guest_event) );
 			}
 		});
 	} else if ( msg.channel === 'announcements' ){
 		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
-			console.log("wsclient info",wsClient.domain,wsClient.email)
-			if( domain == wsClient.domain){
+			if( domain == wsClient.domain ){
 				const announcement_event = {
 					"event": "refresh_announcements",
 				}
-				console.log("sending",JSON.stringify(announcement_event))
-				wsClient.send(JSON.stringify(announcement_event));
+				wsClient.send( JSON.stringify(announcement_event) );
 			}
 		});
 	}
