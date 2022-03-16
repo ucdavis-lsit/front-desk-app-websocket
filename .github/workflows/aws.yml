@@ -29,6 +29,6 @@ jobs:
         uses: jaroldwong/ecr-push-and-ecs-deploy@v1.1
         with:
           ecr-registry: ${{ steps.login-ecr.outputs.registry }}
-          ecr-repository: 'zoom-queue-websocket-dev'
-          ecs-cluster: 'LSITZoomQueueDevelopmentCluster'
-          ecs-service: 'zoom-queue-websocket-development'
+          ecr-repository: 'zoom-queue-websocket-prod'
+          ecs-cluster: 'LSITFrontDeskCluster'
+          ecs-service: 'frontdesk-app-websocket-production'
