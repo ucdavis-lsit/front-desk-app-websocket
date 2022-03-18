@@ -68,9 +68,22 @@ wss.on('connection', function connection( ws, req ) {
 		}
 		if(!isConnected){
 			if( ws.is_agent ){
-				await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+				let agent = await apiService.getAgent( ws.email, ws.domain )
+				if( agent ){
+					ws.id = agent.id;
+					await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+				} else {
+					ws.terminate()
+				}
 			} else {
-				await apiService.updateGuest( ws.id, { status: 'disconnected' } );
+				let guest = await apiService.getGuest( ws.email, ws.domain )
+				if( guest ){
+					ws.id = guest.id;
+					await apiService.updateGuest( ws.id, { status: 'disconnected' } );
+				} else {
+					ws.terminate()
+				}
+
 			}
 		}
 	});
