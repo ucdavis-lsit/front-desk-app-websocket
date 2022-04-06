@@ -39,7 +39,7 @@ wss.on('connection', function connection( ws, req ) {
 					let agent = await apiService.getAgent( ws.email, ws.domain )
 					if( agent ){
 						ws.id = agent.id;
-						await apiService.updateAgent( ws.id, { status: 'connected' } );
+						await apiService.updateAgent( ws.id, { websocket_status: 'connected' } );
 					} else {
 						ws.terminate()
 					}
@@ -47,7 +47,7 @@ wss.on('connection', function connection( ws, req ) {
 					let guest = await apiService.getGuest( ws.email, ws.domain )
 					if( guest ){
 						ws.id = guest.id;
-						await apiService.updateGuest( ws.id, { status: 'connected' } );
+						await apiService.updateGuest( ws.id, { websocket_status: 'connected' } );
 					} else {
 						ws.terminate()
 					}
@@ -71,7 +71,7 @@ wss.on('connection', function connection( ws, req ) {
 				let agent = await apiService.getAgent( ws.email, ws.domain )
 				if( agent ){
 					ws.id = agent.id;
-					await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+					await apiService.updateAgent( ws.id, { websocket_status: 'disconnected' } );
 				} else {
 					ws.terminate()
 				}
@@ -79,7 +79,7 @@ wss.on('connection', function connection( ws, req ) {
 				let guest = await apiService.getGuest( ws.email, ws.domain )
 				if( guest ){
 					ws.id = guest.id;
-					await apiService.updateGuest( ws.id, { status: 'disconnected' } );
+					await apiService.updateGuest( ws.id, { websocket_status: 'disconnected' } );
 				} else {
 					ws.terminate()
 				}
@@ -93,7 +93,6 @@ wss.on('connection', function connection( ws, req ) {
 	});
 	
 	ws.on('pong', function pong(){
-		console.log( "pong" )
 		this.isAlive = true;
 	});
 
@@ -110,7 +109,6 @@ const interval = setInterval(function ping() {
   
 	  ws.isAlive = false;
 	  ws.ping();
-	  console.log( "ping" )
 	});
   }, 30000);
 
