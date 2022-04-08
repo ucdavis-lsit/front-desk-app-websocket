@@ -3,17 +3,24 @@ const api_url = process.env.API_URL;
 const api_key = process.env.API_KEY;
 
 const getAgent = async ( email, domain ) => {
+  try{
     const response = await fetch( `${api_url}agent?key=${api_key}&domain=${domain}&email=${email}`)
     .then( res => res.json() )
     .then( data => data )
     .catch(err => {
-        console.error('Failed to get agent',err);
-     });
-    if( response.length < 1){
-        return null;
+      throw new Error( err );
+    });
+
+    if( response?.length > 0 ){
+      return response[ 0 ];
     } else {
-        return response[0];
+      return null;
     }
+  } catch ( err ) {
+    console.error( 'Failed to get agent', err );
+
+    return null;
+  }
 }
 
 const updateAgent = async ( id, body ) => {
@@ -32,17 +39,24 @@ const updateAgent = async ( id, body ) => {
 }
 
 const getGuest = async ( email, domain ) => {
+  try {
     const response = await fetch( `${api_url}guest?key=${api_key}&domain=${domain}&email=${email}`)
     .then( res => res.json() )
     .then( data => data )
     .catch(err => {
-        console.error('Failed to get guest',err);
-     });
-    if( response.length < 1){
-        return null;
+      throw new Error( err );
+      });
+
+    if( response?.length > 0 ){
+      return response[ 0 ];
     } else {
-        return response[0];
+      return null;
     }
+  } catch ( err ) {
+    console.error( 'Failed to get guest', err );
+
+    return null;
+  }
 }
 
 const updateGuest = async ( id, body ) => {
