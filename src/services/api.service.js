@@ -65,6 +65,7 @@ const updateGuest = async ( id, body ) => {
         body: JSON.stringify(body),
         headers: {
             'Content-type': 'application/json; charset=UTF-8',
+            'x-vfd-issystem': '1'
         },
     } )
     .then( res => res.json() )
