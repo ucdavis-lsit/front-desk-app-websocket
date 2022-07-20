@@ -31,7 +31,19 @@ app.use("", router)
 
 
 dbclient.on('notification', async function (msg) {
-	if( msg.channel === 'guests' ){
+	if( msg.channel === 'agents' ){
+		const payload = JSON.parse( msg.payload );
+		const agent = payload.data
+
+		wss.clients.forEach(( wsClient ) => {
+			if( agent.domain == wsClient.domain ){
+				const agent_event = {
+					"event": "refresh_agent_list",
+				}
+				wsClient.send( JSON.stringify(agent_event) );
+			}
+		});
+	} else if( msg.channel === 'guests' ){
 		const payload = JSON.parse( msg.payload );
 		const guest = payload.data
 
