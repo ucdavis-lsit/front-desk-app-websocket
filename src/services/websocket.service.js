@@ -96,8 +96,8 @@ wss.on('connection', function connection( ws, req ) {
 		this.isAlive = true;
 	});
 
-	ws.on('error', function error(){
-		console.error("error")
+	ws.on('error', function error(e){
+		console.error(e)
 	});
 
 });
@@ -105,10 +105,15 @@ wss.on('connection', function connection( ws, req ) {
 // Check connections every 30 seconds
 const interval = setInterval(function ping() {
 	wss.clients.forEach(function each(ws) {
-	  if (ws.Alive === false) return ws.terminate();
-  
-	  ws.isAlive = false;
-	  ws.ping();
+	if (ws.Alive === false) return ws.terminate();
+
+	ws.isAlive = false;
+	try {
+		ws.ping();
+	} catch (error) {
+		console.error(e)
+	}
+
 	});
   }, 30000);
 
