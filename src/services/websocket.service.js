@@ -111,7 +111,7 @@ const interval = setInterval(function ping() {
 	try {
 		ws.ping();
 	} catch (error) {
-		console.error(e)
+		console.error(error)
 	}
 
 	});
