@@ -76,10 +76,6 @@ const updateGuest = async ( id, body ) => {
 }
 
 const unclaimGuests = async ( agentId ) => {
-  console.log("sending", JSON.stringify({
-    claimed_by: null,
-    claimed_time: null
-  }))
   const response = await fetch( `${api_url}guest?key=${api_key}&claimed_by=${agentId}`, {
       method: 'PATCH',
       body: JSON.stringify({
