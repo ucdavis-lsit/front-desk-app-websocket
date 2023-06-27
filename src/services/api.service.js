@@ -75,9 +75,29 @@ const updateGuest = async ( id, body ) => {
     });
 }
 
+const unclaimGuests = async ( agentId ) => {
+  const response = await fetch( `${api_url}guest?key=${api_key}&claimed_by=${agentId}`, {
+      method: 'PATCH',
+      body: JSON.stringify({
+        claimed_by: null,
+        claimed_time: null
+      }),
+      headers: {
+          'Content-type': 'application/json; charset=UTF-8',
+          'x-vfd-issystem': '1'
+      },
+  } )
+  .then( res => res.json() )
+  .then( data => data )
+  .catch( err => {
+      console.error('Failed to update guests',err);
+  });
+}
+
 module.exports = {
     getAgent,
     updateAgent,
     getGuest,
-    updateGuest
+    updateGuest,
+    unclaimGuests
 }

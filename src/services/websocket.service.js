@@ -72,6 +72,7 @@ wss.on('connection', function connection( ws, req ) {
 				if( agent ){
 					ws.id = agent.id;
 					await apiService.updateAgent( ws.id, { status: 'disconnected' } );
+					await apiService.unclaimGuests( ws.id );
 				} else {
 					ws.terminate()
 				}
