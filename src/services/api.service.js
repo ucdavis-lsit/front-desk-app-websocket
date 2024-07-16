@@ -1,4 +1,3 @@
-const fetch = require('node-fetch');
 const api_url = process.env.API_URL;
 const api_key = process.env.API_KEY;
 

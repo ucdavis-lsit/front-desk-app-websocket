@@ -4,7 +4,6 @@ const bodyParser = require('body-parser');
 const wss = require( './services/websocket.service.js' );
 const dbclient = require('./services/database.service.js');
 
-const fetch = require('node-fetch');
 const api_url = process.env.API_URL;
 const api_key = process.env.API_KEY;
 

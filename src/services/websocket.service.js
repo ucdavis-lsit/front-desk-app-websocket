@@ -2,7 +2,6 @@ const ws = require('ws');
 const url = require('url');
 const jwt = require('jsonwebtoken');
 const { decode } = require('punycode');
-const fetch = require('node-fetch');
 const res = require('express/lib/response');
 const apiService = require('./api.service')
 
