@@ -60,7 +60,7 @@ dbclient.on('notification', async function (msg) {
 					"event": "transfer_guest",
 					"domain": guest.domain
 				}
-				wsClient.send( JSON.stringify() )
+				wsClient.send( JSON.stringify(guest_event) )
 			}
 		});
 	} else if ( msg.channel === 'announcements' ){
