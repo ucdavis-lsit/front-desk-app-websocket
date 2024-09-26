@@ -53,6 +53,15 @@ dbclient.on('notification', async function (msg) {
 				}
 				wsClient.send( JSON.stringify(guest_event) );
 			}
+
+			// Guest trasferred
+			if( guest.id == wsClient.id && guest.domain != wsClient.domain ){
+				const guest_event = {
+					"event": "transfer_guest",
+					"domain": guest.domain
+				}
+				wsClient.send( JSON.stringify() )
+			}
 		});
 	} else if ( msg.channel === 'announcements' ){
 		const domain = JSON.parse(msg.payload).data.domain;
