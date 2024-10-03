@@ -61,6 +61,16 @@ dbclient.on('notification', async function (msg) {
 					"domain": guest.domain
 				}
 				wsClient.send( JSON.stringify(guest_event) )
+
+				// TODO replace with client sending message?
+				wss.clients.forEach(( client ) => {
+					if( wsClient.domain == client.domain ){
+						const event = {
+							"event": "refresh_guest_list",
+						}
+						client.send( JSON.stringify( event ) );
+					}
+				})
 			}
 		});
 	} else if ( msg.channel === 'announcements' ){
