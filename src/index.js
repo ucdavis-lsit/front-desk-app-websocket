@@ -53,6 +53,25 @@ dbclient.on('notification', async function (msg) {
 				}
 				wsClient.send( JSON.stringify(guest_event) );
 			}
+
+			// Guest trasferred
+			if( guest.id == wsClient.id && guest.domain != wsClient.domain ){
+				const guest_event = {
+					"event": "transfer_guest",
+					"domain": guest.domain
+				}
+				wsClient.send( JSON.stringify(guest_event) )
+
+				// TODO replace with client sending message?
+				wss.clients.forEach(( client ) => {
+					if( wsClient.domain == client.domain ){
+						const event = {
+							"event": "refresh_guest_list",
+						}
+						client.send( JSON.stringify( event ) );
+					}
+				})
+			}
 		});
 	} else if ( msg.channel === 'announcements' ){
 		const domain = JSON.parse(msg.payload).data.domain;
