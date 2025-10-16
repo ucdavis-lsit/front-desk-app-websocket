@@ -73,6 +73,18 @@ dbclient.on('notification', async function (msg) {
 				})
 			}
 		});
+
+		// Refresh guest list of transferred
+		if( guest?.transfer_info?.domain ){
+			wss.clients.forEach(( wsClient ) => {
+				if( guest?.transfer_info?.domain == wsClient.domain ){
+					const guest_event = {
+						"event": "refresh_guest_list",
+					}
+					wsClient.send( JSON.stringify(guest_event) );
+				}
+			})
+		}
 	} else if ( msg.channel === 'announcements' ){
 		const domain = JSON.parse(msg.payload).data.domain;
 		wss.clients.forEach(( wsClient ) => {
