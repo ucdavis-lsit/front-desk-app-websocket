@@ -1,0 +1,60 @@
+name: Check npm version age
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+
+jobs:
+  check-age:
+    if: github.actor == 'dependabot[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check package version ages
+        run: |
+          node -e "
+          const https = require('https');
+          const lock = require('./package-lock.json');
+          const MIN_AGE_MS = 7 * 24 * 60 * 60 * 1000;
+          const now = Date.now();
+          const packages = Object.entries(lock.packages || {})
+            .filter(([k]) => k.startsWith('node_modules/') && !k.slice(13).includes('/'))
+            .map(([k, v]) => ({ name: k.slice(13), version: v.version }));
+
+          let failed = false;
+          let checked = 0;
+
+          function check(i) {
+            if (i >= packages.length) {
+              if (failed) process.exit(1);
+              console.log('All ' + checked + ' packages are at least 7 days old.');
+              return;
+            }
+            const { name, version } = packages[i];
+            const url = 'https://registry.npmjs.org/' + name;
+            https.get(url, { headers: { Accept: 'application/json' } }, res => {
+              let data = '';
+              res.on('data', d => data += d);
+              res.on('end', () => {
+                try {
+                  const meta = JSON.parse(data);
+                  const published = meta.time?.[version];
+                  if (!published) { check(i + 1); return; }
+                  const age = now - new Date(published).getTime();
+                  if (age < MIN_AGE_MS) {
+                    const days = (age / 86400000).toFixed(1);
+                    console.error('TOO NEW: ' + name + '@' + version + ' published ' + days + ' days ago');
+                    failed = true;
+                  } else {
+                    checked++;
+                  }
+                } catch (e) { /* skip on parse error */ }
+                check(i + 1);
+              });
+            }).on('error', () => check(i + 1));
+          }
+          check(0);
+          "
