@@ -21,7 +21,7 @@ jobs:
 
       # 3. Authenticate with AWS via OIDC (pinned to v4.1.0)
       - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@1 # v4.1.0
+        uses: aws-actions/configure-aws-credentials@v1 # v4.1.0
         with:
           role-to-assume: arn:aws:iam::042277129213:role/Frontdesk-app-websocketStagingGithubActionsRole
           aws-region: us-west-2
