@@ -19,7 +19,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      # Authenticate with AWS via OIDC (pinned to v1.0)
+      # Authenticate via AWS with OIDC (pinned to v1.0)
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
